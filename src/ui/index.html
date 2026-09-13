@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Layout Toolkit</title>
+    <!--inject:css-->
+  </head>
+  <body>
+    <div class="fig-view" id="mainView">
+      <header class="fig-header">
+        <span class="fig-header__dot" aria-hidden="true"></span>
+        <h1 class="fig-header__title" id="selectionName">Layout Toolkit</h1>
+        <span class="fig-header__meta" id="selectionCount"></span>
+        <button type="button" class="fig-btn fig-btn--icon" id="openSettings" title="Settings">
+          <span class="fig-sr-only">Settings</span>
+          <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.2" />
+            <circle cx="7" cy="7" r="1.5" fill="currentColor" />
+            <path
+              d="M7 2v1.5M7 10.5V12M2 7h1.5M10.5 7H12M3.8 3.8l1.1 1.1M9.1 9.1l1.1 1.1M3.8 10.2l1.1-1.1M9.1 4.9l1.1-1.1"
+              stroke="currentColor"
+              stroke-width="1"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+      </header>
+
+      <div class="fig-toolbar">
+        <div class="fig-segmented" id="scopeGroup" aria-label="Scope">
+          <button
+            class="fig-segment segment-text"
+            data-value="everything"
+            title="The selection and everything nested inside it"
+          >
+            Nested
+          </button>
+          <button
+            class="fig-segment segment-text"
+            data-value="children-only"
+            title="Only what is nested, the selected layers stay as they are"
+          >
+            Children
+          </button>
+          <button
+            class="fig-segment segment-text"
+            data-value="selection-only"
+            title="Only the selected layers"
+          >
+            Self
+          </button>
+        </div>
+      </div>
+
+      <div class="fig-body">
+        <section class="fig-group">
+          <div class="fig-label">Sizing</div>
+          <div class="palette palette--3">
+            <button
+              class="pal-btn"
+              data-action='{"kind":"sizing","axis":"x","value":"HUG"}'
+              title="Hug width on every auto layout frame and text in scope"
+            >
+              Hug width
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"sizing","axis":"x","value":"FILL"}'
+              title="Fill width on everything in scope that sits in auto layout"
+            >
+              Fill width
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"sizing","axis":"x","value":"FIXED"}'
+              title="Fixed width on everything in scope that sits in auto layout"
+            >
+              Fixed width
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"sizing","axis":"y","value":"HUG"}'
+              title="Hug height on every auto layout frame and text in scope"
+            >
+              Hug height
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"sizing","axis":"y","value":"FILL"}'
+              title="Fill height on everything in scope that sits in auto layout"
+            >
+              Fill height
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"sizing","axis":"y","value":"FIXED"}'
+              title="Fixed height on everything in scope that sits in auto layout"
+            >
+              Fixed height
+            </button>
+            <button
+              class="pal-btn pal-btn--full"
+              data-action='{"kind":"sizing-auto"}'
+              title="Hug along the parent's direction, fill across it. Text never fills vertically."
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M8 2l1.5 3.5L13 7l-3.5 1.5L8 12l-1.5-3.5L3 7l3.5-1.5L8 2z"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M13 12l.6 1.4L15 14l-1.4.6L13 16l-.6-1.4L11 14l1.4-.6L13 12z"
+                  fill="currentColor"
+                />
+              </svg>
+              <span>Auto, follow the parent's direction</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="fig-group">
+          <div class="fig-label">Text</div>
+          <div class="palette palette--4">
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-align","align":"LEFT"}'
+              title="Align every text in scope left"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 4h10M3 7h6M3 10h10M3 13h6"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span>Left</span>
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-align","align":"CENTER"}'
+              title="Center every text in scope"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 4h10M5 7h6M3 10h10M5 13h6"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span>Center</span>
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-align","align":"RIGHT"}'
+              title="Align every text in scope right"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 4h10M7 7h6M3 10h10M7 13h6"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span>Right</span>
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-align","align":"JUSTIFIED"}'
+              title="Justify every text in scope"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M3 4h10M3 7h10M3 10h10M3 13h10"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <span>Justify</span>
+            </button>
+          </div>
+          <label
+            class="fig-check frame-toggle"
+            title="A hugging text is exactly as wide as its words, so its own alignment shows nothing. This moves the surrounding auto layout frame as well."
+          >
+            <input type="checkbox" id="textFrame" />
+            <span class="fig-check__box" aria-hidden="true">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 5.5 4 7.5 8 3"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="fig-check__text">Also align the frame around each text</span>
+          </label>
+          <div class="palette palette--3">
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-resize","resize":"hug"}'
+              title="Every text in scope hugs its content in both directions"
+            >
+              Hug text
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-resize","resize":"fill"}'
+              title="Every text in scope fills the width and hugs its height"
+            >
+              Fill width
+            </button>
+            <button
+              class="pal-btn"
+              data-action='{"kind":"text-resize","resize":"fixed"}'
+              title="Every text in scope keeps a fixed size"
+            >
+              Fixed size
+            </button>
+          </div>
+        </section>
+
+        <section class="fig-group">
+          <div class="fig-label">Align frames</div>
+          <div class="align-row">
+            <div
+              class="align-grid"
+              id="alignGrid"
+              role="group"
+              aria-label="Align children of auto layout frames"
+            ></div>
+            <div class="fig-stack align-side">
+              <button
+                class="pal-btn pal-btn--wide"
+                data-action='{"kind":"align-space-between"}'
+                title="Space between along the main axis"
+              >
+                <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path
+                    d="M2 3v10M14 3v10"
+                    stroke="currentColor"
+                    stroke-width="1.3"
+                    stroke-linecap="round"
+                  />
+                  <rect x="4" y="6" width="3" height="4" rx=".5" fill="currentColor" />
+                  <rect x="9" y="6" width="3" height="4" rx=".5" fill="currentColor" />
+                </svg>
+                <span>Space between</span>
+              </button>
+              <p class="fig-hint">Every auto layout frame in scope places its children here.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="fig-group">
+          <div class="fig-label">Fit to parent</div>
+          <div class="palette palette--3">
+            <button
+              class="pal-btn pal-btn--wide"
+              data-action='{"kind":"fit","width":true,"height":false}'
+              title="Stretch free layers to the parent's width"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect
+                  x="1.5"
+                  y="2.5"
+                  width="13"
+                  height="11"
+                  rx="1.5"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                />
+                <path
+                  d="M4 8h8M6 6 4 8l2 2M10 6l2 2-2 2"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Width</span>
+            </button>
+            <button
+              class="pal-btn pal-btn--wide"
+              data-action='{"kind":"fit","width":false,"height":true}'
+              title="Stretch free layers to the parent's height"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect
+                  x="1.5"
+                  y="2.5"
+                  width="13"
+                  height="11"
+                  rx="1.5"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                />
+                <path
+                  d="M8 4.5v7M6 6.5l2-2 2 2M6 9.5l2 2 2-2"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Height</span>
+            </button>
+            <button
+              class="pal-btn pal-btn--wide"
+              data-action='{"kind":"fit","width":true,"height":true}'
+              title="Stretch free layers to the whole parent"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <rect
+                  x="1.5"
+                  y="2.5"
+                  width="13"
+                  height="11"
+                  rx="1.5"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                />
+                <path
+                  d="M4.5 5.5l7 5M11.5 5.5l-7 5"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M4.5 8V5.5H7M11.5 8V5.5H9M4.5 8v2.5H7M11.5 8v2.5H9"
+                  stroke="currentColor"
+                  stroke-width="1.2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Both</span>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div class="fig-status" id="noticeGroup">
+        <div class="fig-notice report" id="notice">
+          <button type="button" class="report__summary" id="reportSummary" aria-expanded="false">
+            Select a layer to start.
+          </button>
+          <div class="report__details" id="reportDetails" hidden></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fig-overlay" id="settingsView" hidden>
+      <header class="fig-header">
+        <button type="button" class="fig-btn fig-btn--icon" id="closeSettings" title="Back">
+          <span class="fig-sr-only">Back</span>
+          <svg viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <path
+              d="M9 3L5 7l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <h1 class="fig-header__title">Settings</h1>
+      </header>
+      <div class="fig-body">
+        <section class="fig-group">
+          <label class="fig-label" for="fitConstraints">Constraints after fit</label>
+          <select class="fig-select" id="fitConstraints">
+            <option value="STRETCH">Stretch</option>
+            <option value="SCALE">Scale</option>
+            <option value="keep">Keep</option>
+          </select>
+        </section>
+        <section class="fig-group">
+          <div class="fig-label">Layers</div>
+          <label class="fig-check">
+            <input type="checkbox" id="skipLocked" />
+            <span class="fig-check__box" aria-hidden="true">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 5.5 4 7.5 8 3"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="fig-check__text">Skip locked layers</span>
+          </label>
+          <label class="fig-check">
+            <input type="checkbox" id="skipHidden" />
+            <span class="fig-check__box" aria-hidden="true">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 5.5 4 7.5 8 3"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="fig-check__text">Skip hidden layers</span>
+          </label>
+        </section>
+        <section class="fig-group">
+          <div class="fig-label">Instances</div>
+          <label class="fig-check">
+            <input type="checkbox" id="insideComponents" />
+            <span class="fig-check__box" aria-hidden="true">
+              <svg viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 5.5 4 7.5 8 3"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </span>
+            <span class="fig-check__text">Also change layers inside components</span>
+          </label>
+          <p class="fig-hint">
+            Off: an instance counts as one layer and only its slots are entered. On: everything
+            inside is written as an override, values Figma keeps are reported.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <!--inject:js-->
+  </body>
+</html>

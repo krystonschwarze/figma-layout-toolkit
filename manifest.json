@@ -1,0 +1,21 @@
+{
+  "name": "Layout Toolkit",
+  "id": "1741203398546219047",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "documentAccess": "dynamic-page",
+  "editorType": ["figma"],
+  "networkAccess": {
+    "allowedDomains": ["none"]
+  },
+  "relaunchButtons": [
+    {
+      "command": "open",
+      "name": "Open Layout Toolkit",
+      "multipleSelection": true
+    }
+  ]
+}
