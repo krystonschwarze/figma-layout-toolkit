@@ -35,6 +35,9 @@ export interface TreeNode {
   constraints?: { readonly horizontal: ConstraintValue; readonly vertical: ConstraintValue };
   strokeAlign?: 'CENTER' | 'INSIDE' | 'OUTSIDE';
   strokes?: readonly { readonly visible?: boolean }[];
+  /* Figma hands out figma.mixed here when the four sides differ, so it is not plain number. */
+  strokeWeight?: number | symbol;
+  strokesIncludedInLayout?: boolean;
   minWidth?: number | null;
   maxWidth?: number | null;
   minHeight?: number | null;

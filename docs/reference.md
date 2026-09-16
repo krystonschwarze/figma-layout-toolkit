@@ -56,6 +56,42 @@ first so the size sticks. If a min or max size keeps a layer short of the target
 counts it, and a stroke that sits outside or centered is noted in the console because the layer will
 visibly reach past the frame.
 
+### Border in layout
+
+Figma moved auto layout closer to the CSS box model, and a frame now carries a border that is either
+**Included** in the layout or **Excluded** from it. Included is the CSS behaviour: the padding stays
+as it is and the border adds to the frame, the way `box-sizing: border-box` works. Excluded is how
+Figma laid out before, the border eats into the padding and the frame keeps its size.
+
+Measured on a probe frame with 20 padding, one 100 wide child and a 10 stroke: Excluded leaves the
+frame at 140, Included makes it 160. That is the whole difference, twice the stroke weight per axis.
+
+The two buttons write that on every frame in scope. **Grid frames count**, unlike with Align frames,
+because a grid reserves space for the border just the same. A frame without auto layout is skipped
+and counted: Figma throws on the write there rather than ignoring it, so it never reaches the API.
+
+**Whole page instead of the selection** takes every layer on the current page as the starting point.
+The scope switch in the toolbar does not narrow that run, a page sweep means the page. It is the only
+action in the plugin that works without a selection, and it leaves no relaunch button behind, because
+parking one on every top level layer is noise rather than a shortcut.
+
+**Skip components and instances** is on by default. It leaves components, component sets and
+instances alone, including everything nested inside them, so a sweep touches your own frames and not
+the design system. Switch it off and instances are written as well, together with what sits in their
+slots; the component's own layers still need **Also change layers inside components** in the settings.
+
+**What you select is always worked on.** The skip guards what the walk finds, not what you pointed
+at. So selecting a main component writes it and everything inside it, while the instances nested in
+there stay untouched, which is the usual way to fix a component. Selecting a component set counts as
+selecting its variants, because a set is nothing but its variants. The same set found further down
+the tree is skipped like any other. A whole page sweep has nothing chosen by hand, so there the skip
+covers the page, top level components included.
+
+Only a frame with a border that actually draws changes size, so those are counted separately and
+listed in the status line. A stroke that is invisible or has weight 0 does not count. Everything else
+is written all the same, because the point is to flip what the file does from now on, not only what
+is visible today.
+
 ## The status line
 
 After every click the line above the bottom edge names the action and says how many layers changed

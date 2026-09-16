@@ -22,6 +22,8 @@ export function sanitizeSettings(raw: unknown): Settings {
       ['STRETCH', 'SCALE', 'keep'] as const,
       DEFAULT_SETTINGS.fitConstraints,
     ),
+    borderWholePage: bool(input.borderWholePage, DEFAULT_SETTINGS.borderWholePage),
+    borderSkipComponents: bool(input.borderSkipComponents, DEFAULT_SETTINGS.borderSkipComponents),
     policy: {
       skipLocked: bool(policy.skipLocked, DEFAULT_SETTINGS.policy.skipLocked),
       skipHidden: bool(policy.skipHidden, DEFAULT_SETTINGS.policy.skipHidden),
@@ -66,6 +68,10 @@ export function sanitizeAction(raw: unknown): Action | null {
       const height = input.height === true;
       return width || height ? { kind: 'fit', width, height } : null;
     }
+    case 'border':
+      return typeof input.included === 'boolean'
+        ? { kind: 'border', included: input.included }
+        : null;
     default:
       return null;
   }
@@ -75,7 +81,8 @@ export type Plan =
   | { command: 'hug-fill'; options: OptionsByCommand['hug-fill'] }
   | { command: 'fit'; options: OptionsByCommand['fit'] }
   | { command: 'text'; options: OptionsByCommand['text'] }
-  | { command: 'align'; options: OptionsByCommand['align'] };
+  | { command: 'align'; options: OptionsByCommand['align'] }
+  | { command: 'border'; options: OptionsByCommand['border'] };
 
 export function planFor(action: Action, settings: Settings): Plan {
   const { scope } = settings;
@@ -112,6 +119,18 @@ export function planFor(action: Action, settings: Settings): Plan {
       };
     case 'align-space-between':
       return { command: 'align', options: { scope, h: 'keep', v: 'keep', spaceBetween: true } };
+    case 'border':
+      return {
+        command: 'border',
+        options: {
+          /* A whole page sweep means every frame on it, so the toolbar scope does not narrow it. */
+          scope: settings.borderWholePage ? 'everything' : scope,
+          included: action.included,
+          skipComponents: settings.borderSkipComponents,
+          /* A page sweep has nothing chosen by hand, so the skip guards the whole page. */
+          exemptRoots: !settings.borderWholePage,
+        },
+      };
     case 'fit':
       return {
         command: 'fit',
@@ -146,6 +165,8 @@ export function labelFor(action: Action): string {
       return `Align ${EDGE_LABEL[action.v][1]} ${EDGE_LABEL[action.h][0]}`;
     case 'align-space-between':
       return 'Space between';
+    case 'border':
+      return action.included ? 'Border included' : 'Border excluded';
     case 'fit':
       return action.width && action.height
         ? 'Fit to parent'

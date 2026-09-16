@@ -7,6 +7,10 @@ export function isFrameLike(node: TreeNode): boolean {
   return FRAME_TYPES.has(node.type);
 }
 
+export function isComponentLike(node: TreeNode): boolean {
+  return node.type === 'COMPONENT' || node.type === 'COMPONENT_SET' || node.type === 'INSTANCE';
+}
+
 export function isText(node: TreeNode): boolean {
   return node.type === 'TEXT';
 }
@@ -18,6 +22,11 @@ export function isAutoLayoutFrame(node: TreeNode): boolean {
 
 export function isGridFrame(node: TreeNode): boolean {
   return isFrameLike(node) && node.layoutMode === 'GRID';
+}
+
+/* Any layout that reserves space, so unlike isAutoLayoutFrame this includes grid. */
+export function hasLayout(node: TreeNode): boolean {
+  return isFrameLike(node) && node.layoutMode !== undefined && node.layoutMode !== 'NONE';
 }
 
 export function isLayoutChild(node: TreeNode): boolean {

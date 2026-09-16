@@ -1,3 +1,4 @@
+import { isComponentLike } from './classify.ts';
 import type { TreeNode } from './types.ts';
 
 export type ScopeFilter = 'everything' | 'selection-only' | 'children-only';
@@ -9,6 +10,8 @@ export interface ScopedNode<T extends TreeNode = TreeNode> {
   readonly isRoot: boolean;
   /* An instance whose own layers were not entered, only its slots were. */
   readonly boundary: boolean;
+  /* Pointed at by hand, so a stop that guards the tree does not apply to it. */
+  readonly exempt: boolean;
 }
 
 /*
@@ -23,25 +26,30 @@ export function collectScope<T extends TreeNode>(
   roots: readonly T[],
   filter: ScopeFilter = 'everything',
   insideComponents = false,
+  stopAtComponents = false,
+  exemptRoots = false,
 ): ScopedNode<T>[] {
   const seen = new Set<string>();
   const out: ScopedNode<T>[] = [];
 
-  function visit(node: T, depth: number, isRoot: boolean): void {
+  function visit(node: T, depth: number, isRoot: boolean, exempt: boolean): void {
     if (seen.has(node.id)) return;
     seen.add(node.id);
     const boundary = node.type === 'INSTANCE' && !insideComponents;
     const include =
       filter === 'selection-only' ? isRoot : filter === 'children-only' ? !isRoot : true;
-    if (include) out.push({ node, depth, isRoot, boundary });
+    if (include) out.push({ node, depth, isRoot, boundary, exempt });
     if (filter === 'selection-only') return;
+    /* The node is reported by the caller, its subtree is what stays untouched. */
+    if (stopAtComponents && !exempt && isComponentLike(node)) return;
     for (const child of node.children ?? []) {
       if (boundary && child.type !== 'SLOT') continue;
-      visit(child as T, depth + 1, false);
+      /* A set is nothing but its variants, so choosing the set chooses them. */
+      visit(child as T, depth + 1, false, exempt && node.type === 'COMPONENT_SET');
     }
   }
 
-  for (const root of roots) visit(root, 0, true);
+  for (const root of roots) visit(root, 0, true, exemptRoots);
   return out;
 }
 

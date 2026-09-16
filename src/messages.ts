@@ -11,12 +11,15 @@ export type Action =
   | { kind: 'text-resize'; resize: Exclude<TextResizeChoice, 'keep'> }
   | { kind: 'align'; h: Edge; v: Edge }
   | { kind: 'align-space-between' }
-  | { kind: 'fit'; width: boolean; height: boolean };
+  | { kind: 'fit'; width: boolean; height: boolean }
+  | { kind: 'border'; included: boolean };
 
 export interface Settings {
   scope: ScopeFilter;
   textFrame: boolean;
   fitConstraints: FitConstraints;
+  borderWholePage: boolean;
+  borderSkipComponents: boolean;
   policy: Policy;
 }
 
@@ -24,6 +27,8 @@ export const DEFAULT_SETTINGS: Settings = {
   scope: 'everything',
   textFrame: true,
   fitConstraints: 'STRETCH',
+  borderWholePage: false,
+  borderSkipComponents: true,
   policy: { skipLocked: true, skipHidden: true, insideComponents: false },
 };
 
@@ -43,6 +48,7 @@ export interface ReportSummary {
   unchanged: number;
   skipped: SkippedGroup[];
   instances: LayerRef[];
+  bordered: LayerRef[];
 }
 
 export type UiMessage =

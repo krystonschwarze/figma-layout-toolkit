@@ -18,6 +18,10 @@ button writes right away as its own undo step, and the window stays open.
   per frame because the axis names flip with the layout direction.
 - **Fit to parent.** Stretches free and absolutely positioned layers to their parent, with the
   constraints from the settings.
+- **Border in layout.** Sets every auto layout frame to **Included** or **Excluded**, the switch
+  Figma added when it moved auto layout closer to the CSS box model. A checkbox takes the whole
+  page instead of the selection, another leaves components and instances alone, except for what
+  you selected yourself.
 - **Scope** switches between the selection with its descendants, only what is inside, or only the
   selected layers themselves.
 - The status line names the last action and counts what changed and what was skipped. Click it to

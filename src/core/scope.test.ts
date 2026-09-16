@@ -85,3 +85,19 @@ test('an instance is a boundary that is only entered through its slots', () => {
     ['root', 'card', 'own', 'slot', 'button', 'label'],
   );
 });
+
+test('stopAtComponents keeps the node itself but not what is under it', () => {
+  const variant = column({ name: 'variant' });
+  const set = fake('COMPONENT_SET', { name: 'Button' }, [variant]);
+  const inside = column({ name: 'inside' });
+  const instance = fake('INSTANCE', { name: 'Card' }, [inside]);
+  const mine = column({ name: 'mine' });
+  const root = column({ name: 'root' }, [set, instance, mine]);
+  page([root]);
+
+  const stopped = collectScope([root], 'everything', false, true).map((entry) => entry.node.name);
+  assert.deepEqual(stopped, ['root', 'Button', 'Card', 'mine']);
+
+  const full = collectScope([root], 'everything', true, false).map((entry) => entry.node.name);
+  assert.deepEqual(full, ['root', 'Button', 'variant', 'Card', 'inside', 'mine']);
+});

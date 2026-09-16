@@ -24,6 +24,10 @@ body {
   gap: var(--fig-space-1);
 }
 
+.palette--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .palette--3 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

@@ -11,12 +11,15 @@ test('sanitizeSettings falls back to the defaults for garbage and keeps valid va
       scope: 'children-only',
       textFrame: false,
       fitConstraints: 'SCALE',
+      borderWholePage: true,
       policy: { skipLocked: false },
     }),
     {
       scope: 'children-only',
       textFrame: false,
       fitConstraints: 'SCALE',
+      borderWholePage: true,
+      borderSkipComponents: true,
       policy: { skipLocked: false, skipHidden: true, insideComponents: false },
     },
   );
@@ -41,6 +44,12 @@ test('sanitizeAction accepts every button and rejects the rest', () => {
     v: 'MIN',
   });
   assert.equal(sanitizeAction({ kind: 'fit', width: false, height: false }), null);
+  assert.deepEqual(sanitizeAction({ kind: 'border', included: false }), {
+    kind: 'border',
+    included: false,
+  });
+  assert.equal(sanitizeAction({ kind: 'border', included: 'yes' }), null);
+  assert.equal(sanitizeAction({ kind: 'border' }), null);
   assert.equal(sanitizeAction({ kind: 'nope' }), null);
 });
 
@@ -70,6 +79,10 @@ test('planFor maps a button to one command with fixed options and the shared sco
     command: 'fit',
     options: { scope: 'selection-only', width: true, height: false, constraints: 'keep' },
   });
+  assert.deepEqual(planFor({ kind: 'border', included: true }, settings), {
+    command: 'border',
+    options: { scope: 'selection-only', included: true, skipComponents: true, exemptRoots: true },
+  });
 });
 
 test('labelFor speaks in the words of the button', () => {
@@ -77,4 +90,27 @@ test('labelFor speaks in the words of the button', () => {
   assert.equal(labelFor({ kind: 'align', h: 'MAX', v: 'MIN' }), 'Align top right');
   assert.equal(labelFor({ kind: 'fit', width: true, height: true }), 'Fit to parent');
   assert.equal(labelFor({ kind: 'text-resize', resize: 'fill' }), 'Text fill');
+});
+
+test('a whole page sweep ignores the toolbar scope, the selection run does not', () => {
+  const page = sanitizeSettings({ scope: 'selection-only', borderWholePage: true });
+  const selection = sanitizeSettings({ scope: 'selection-only', borderWholePage: false });
+  assert.deepEqual(planFor({ kind: 'border', included: true }, page), {
+    command: 'border',
+    options: {
+      scope: 'everything',
+      included: true,
+      skipComponents: true,
+      exemptRoots: false,
+    },
+  });
+  assert.deepEqual(planFor({ kind: 'border', included: true }, selection), {
+    command: 'border',
+    options: { scope: 'selection-only', included: true, skipComponents: true, exemptRoots: true },
+  });
+});
+
+test('the border buttons name the state they write', () => {
+  assert.equal(labelFor({ kind: 'border', included: true }), 'Border included');
+  assert.equal(labelFor({ kind: 'border', included: false }), 'Border excluded');
 });

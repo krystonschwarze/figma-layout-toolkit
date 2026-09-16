@@ -4,6 +4,8 @@ export type SkipReason =
   | 'hidden'
   | 'no auto layout'
   | 'grid layout'
+  | 'component or instance'
+  | 'no layout'
   | 'not a layout child'
   | 'parent hugs'
   | 'cannot hug'
@@ -25,11 +27,13 @@ export interface Report {
   skipped: Map<SkipReason, LayerRef[]>;
   /* Instances kept as one layer: written where the row applies, never entered below the slots. */
   instances: LayerRef[];
+  /* Frames that visibly change size from the write, because they carry a border. */
+  bordered: LayerRef[];
   notes: string[];
 }
 
 export function emptyReport(): Report {
-  return { changed: 0, unchanged: 0, skipped: new Map(), instances: [], notes: [] };
+  return { changed: 0, unchanged: 0, skipped: new Map(), instances: [], bordered: [], notes: [] };
 }
 
 /* A selected instance under Children is not in the scope but still the reason its own layers stayed. */
@@ -70,6 +74,9 @@ export function merge(into: Report, from: Report): Report {
   }
   for (const layer of from.instances) {
     if (!into.instances.some((l) => l.id === layer.id)) into.instances.push(layer);
+  }
+  for (const layer of from.bordered) {
+    if (!into.bordered.some((l) => l.id === layer.id)) into.bordered.push(layer);
   }
   into.notes.push(...from.notes);
   return into;

@@ -12,7 +12,7 @@ export function writeBlocker(node: TreeNode, policy: Policy): SkipReason | null 
 export type WriteResult = 'changed' | 'unchanged' | 'rejected';
 
 type Writable = {
-  [K in keyof TreeNode]-?: TreeNode[K] extends string | number | undefined ? K : never;
+  [K in keyof TreeNode]-?: TreeNode[K] extends string | number | boolean | undefined ? K : never;
 }[keyof TreeNode];
 
 /*

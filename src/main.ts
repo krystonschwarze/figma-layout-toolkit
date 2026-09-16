@@ -1,4 +1,5 @@
 import { runAlign } from './commands/align.ts';
+import { runBorder } from './commands/border.ts';
 import { runFit } from './commands/fit.ts';
 import { runHugFill } from './commands/hugFill.ts';
 import { runText } from './commands/text.ts';
@@ -65,6 +66,8 @@ function execute(plan: Plan, roots: readonly TreeNode[], ctx: RunContext): Promi
       return runText(roots, plan.options, ctx);
     case 'align':
       return runAlign(roots, plan.options, ctx);
+    case 'border':
+      return runBorder(roots, plan.options, ctx);
   }
 }
 
@@ -77,6 +80,7 @@ function summarize(label: string, report: Report): ReportSummary {
       .map(([reason, layers]) => ({ reason, layers }))
       .sort((a, b) => b.layers.length - a.layers.length),
     instances: report.instances,
+    bordered: report.bordered,
   };
 }
 
@@ -89,8 +93,15 @@ async function run(rawAction: unknown, rawSettings: unknown): Promise<void> {
   }
   const settings = sanitizeSettings(rawSettings);
   const selection = figma.currentPage.selection;
-  if (selection.length === 0) {
+  /* Only the border buttons reach past the selection, and only while their own checkbox is on. */
+  const wholePage = action.kind === 'border' && settings.borderWholePage;
+  if (!wholePage && selection.length === 0) {
     send({ type: 'error', message: 'Select a layer first.' });
+    return;
+  }
+  const roots = wholePage ? figma.currentPage.children : selection;
+  if (roots.length === 0) {
+    send({ type: 'error', message: 'This page has no layers.' });
     return;
   }
 
@@ -98,21 +109,20 @@ async function run(rawAction: unknown, rawSettings: unknown): Promise<void> {
   figma.skipInvisibleInstanceChildren = settings.policy.skipHidden;
   send({ type: 'running' });
   const ctx: RunContext = { policy: settings.policy, loadFonts, tick };
-  const label = labelFor(action);
+  const label = wholePage ? `${labelFor(action)} on the whole page` : labelFor(action);
   try {
-    const report = await execute(
-      planFor(action, settings),
-      selection as unknown as TreeNode[],
-      ctx,
-    );
+    const report = await execute(planFor(action, settings), roots as unknown as TreeNode[], ctx);
     if (report.notes.length > 0) {
       console.info(`Layout Toolkit · ${label}\n  ${report.notes.join('\n  ')}`);
     }
-    for (const root of selection) {
-      try {
-        root.setRelaunchData({ open: '' });
-      } catch {
-        /* Relaunch data is a convenience, a layer that refuses it changes nothing about the run. */
+    /* A page sweep would park the button on every top level layer, which is noise, not a shortcut. */
+    if (!wholePage) {
+      for (const root of selection) {
+        try {
+          root.setRelaunchData({ open: '' });
+        } catch {
+          /* Relaunch data is a convenience, a layer that refuses it changes nothing about the run. */
+        }
       }
     }
     /* Every click is its own undo step, otherwise Figma folds the whole session into one. */

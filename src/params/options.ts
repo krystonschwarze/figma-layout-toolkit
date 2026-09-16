@@ -1,7 +1,7 @@
 import type { FrameFilter, ScopeFilter } from '../core/scope.ts';
 import type { Sizing, TextAlign } from '../core/types.ts';
 
-export type Command = 'hug-fill' | 'fit' | 'text' | 'align';
+export type Command = 'hug-fill' | 'fit' | 'text' | 'align' | 'border';
 
 export type SizingChoice = Sizing | 'keep';
 export type HugFillMode = { kind: 'auto' } | { kind: 'custom'; x: SizingChoice; y: SizingChoice };
@@ -36,11 +36,20 @@ export interface AlignOptions {
   spaceBetween: boolean;
 }
 
+export interface BorderOptions {
+  scope: ScopeFilter;
+  included: boolean;
+  skipComponents: boolean;
+  /* A layer chosen by hand is worked on even when the skip would otherwise guard it. */
+  exemptRoots: boolean;
+}
+
 export interface OptionsByCommand {
   'hug-fill': HugFillOptions;
   fit: FitOptions;
   text: TextOptions;
   align: AlignOptions;
+  border: BorderOptions;
 }
 
 export const DEFAULTS: OptionsByCommand = {
@@ -48,4 +57,5 @@ export const DEFAULTS: OptionsByCommand = {
   fit: { scope: 'everything', width: true, height: true, constraints: 'STRETCH' },
   text: { scope: 'everything', align: 'LEFT', frame: true, resize: 'keep' },
   align: { scope: 'everything', h: 'MIN', v: 'MIN', spaceBetween: false },
+  border: { scope: 'everything', included: true, skipComponents: true, exemptRoots: true },
 };

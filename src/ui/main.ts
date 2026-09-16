@@ -29,6 +29,8 @@ const el = {
   settingsView: byId('settingsView'),
   scopeGroup: byId('scopeGroup'),
   textFrame: byId<HTMLInputElement>('textFrame'),
+  borderWholePage: byId<HTMLInputElement>('borderWholePage'),
+  borderSkipComponents: byId<HTMLInputElement>('borderSkipComponents'),
   alignGrid: byId('alignGrid'),
   notice: byId('notice'),
   reportSummary: byId<HTMLButtonElement>('reportSummary'),
@@ -47,6 +49,13 @@ let hasReport = false;
 
 const actionButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-action]'));
 
+function actionOf(button: HTMLButtonElement): Action | null {
+  return JSON.parse(button.dataset.action ?? 'null') as Action | null;
+}
+
+/* The only buttons that may run without a selection, and only while their own checkbox is on. */
+const pageButtons = new Set(actionButtons.filter((b) => actionOf(b)?.kind === 'border'));
+
 function send(message: UiMessage): void {
   postToPlugin(message);
 }
@@ -56,13 +65,18 @@ function persist(): void {
 }
 
 function run(action: Action): void {
-  if (running || selection.count === 0) return;
+  if (running) return;
+  const reachesPage = action.kind === 'border' && settings.borderWholePage;
+  if (selection.count === 0 && !reachesPage) return;
   send({ type: 'run', action, settings });
 }
 
 function syncEnabled(): void {
   const disabled = running || selection.count === 0;
-  for (const button of actionButtons) button.disabled = disabled;
+  for (const button of actionButtons) {
+    const reachesPage = settings.borderWholePage && pageButtons.has(button);
+    button.disabled = running || (selection.count === 0 && !reachesPage);
+  }
   for (const dot of Array.from(el.alignGrid.querySelectorAll<HTMLButtonElement>('.align-dot'))) {
     dot.disabled = disabled;
   }
@@ -121,6 +135,8 @@ function writeForm(next: Settings): void {
   settings = structuredClone(next);
   selectScope(settings.scope);
   el.textFrame.checked = settings.textFrame;
+  el.borderWholePage.checked = settings.borderWholePage;
+  el.borderSkipComponents.checked = settings.borderSkipComponents;
   el.fitConstraints.value = settings.fitConstraints;
   el.skipLocked.checked = settings.policy.skipLocked;
   el.skipHidden.checked = settings.policy.skipHidden;
@@ -151,6 +167,7 @@ function showReport(report: ReportSummary): void {
     if (skipped > 0) text += ` · ${skipped} skipped`;
   }
   if (report.instances.length > 0) text += ` · ${plural(report.instances.length, 'instance')}`;
+  if (report.bordered.length > 0) text += ` · ${report.bordered.length} with a border`;
   const groups: { title: string; layers: LayerRef[] }[] = report.skipped.map((group) => ({
     title: `${plural(group.layers.length, 'layer')} ${group.reason}`,
     layers: group.layers,
@@ -159,6 +176,12 @@ function showReport(report: ReportSummary): void {
     groups.push({
       title: `${plural(report.instances.length, 'instance')} kept as one layer`,
       layers: report.instances,
+    });
+  }
+  if (report.bordered.length > 0) {
+    groups.push({
+      title: `${plural(report.bordered.length, 'frame')} with a visible border, so the size moved`,
+      layers: report.bordered,
     });
   }
   setSummary(
@@ -197,7 +220,10 @@ function showReport(report: ReportSummary): void {
 function showIdle(): void {
   if (selection.count === 0) {
     hasReport = false;
-    setSummary('info', 'Select a layer to start.', false);
+    const text = settings.borderWholePage
+      ? 'Border runs on the whole page. Every other action needs a selection.'
+      : 'Select a layer to start.';
+    setSummary('info', text, false);
   } else if (!hasReport) {
     setSummary('info', 'Click an action. Every click is one undo step.', false);
   }
@@ -213,7 +239,7 @@ el.reportSummary.addEventListener('click', () => {
 for (const button of actionButtons) {
   button.setAttribute('aria-label', button.title);
   button.addEventListener('click', () => {
-    const action = JSON.parse(button.dataset.action ?? 'null') as Action | null;
+    const action = actionOf(button);
     if (action !== null) run(action);
   });
 }
@@ -231,6 +257,12 @@ function bindToggle(input: HTMLInputElement, write: (checked: boolean) => void):
 }
 
 bindToggle(el.textFrame, (on) => (settings.textFrame = on));
+bindToggle(el.borderSkipComponents, (on) => (settings.borderSkipComponents = on));
+bindToggle(el.borderWholePage, (on) => {
+  settings.borderWholePage = on;
+  syncEnabled();
+  showIdle();
+});
 bindToggle(el.skipLocked, (on) => (settings.policy = { ...settings.policy, skipLocked: on }));
 bindToggle(el.skipHidden, (on) => (settings.policy = { ...settings.policy, skipHidden: on }));
 bindToggle(

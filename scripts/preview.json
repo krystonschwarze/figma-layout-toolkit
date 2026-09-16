@@ -8,6 +8,8 @@
         "scope": "everything",
         "textFrame": true,
         "fitConstraints": "STRETCH",
+        "borderWholePage": false,
+        "borderSkipComponents": true,
         "policy": { "skipLocked": true, "skipHidden": true, "insideComponents": false }
       },
       "selection": { "count": 3, "name": "Card" }
@@ -31,7 +33,8 @@
         "instances": [
           { "id": "1:5", "name": "Button / Primary" },
           { "id": "1:6", "name": "Featured Icon" }
-        ]
+        ],
+        "bordered": [{ "id": "1:7", "name": "Card / Outlined" }]
       }
     }
   ]
